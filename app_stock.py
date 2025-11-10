@@ -8,6 +8,10 @@ from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
 
+# Optimize for Streamlit Cloud
+st.set_option('deprecation.showfileUploaderEncoding', False)
+
+# Page config
 st.set_page_config(page_title="Stock Price Predictor", page_icon="📈", layout="wide")
 
 st.markdown("""
@@ -166,22 +170,36 @@ if uploaded_file:
         with st.spinner("🤖 Training optimized ARIMA model..."):
             progress_bar = st.progress(0)
           
-            model = auto_arima(
-                y=dataframe['VWAP'],
-                X=dataframe[ind_features],
-               
-                start_p=1, max_p=3,
-                start_q=1, max_q=3,
-                max_d=2,
-                seasonal=False,
-                stepwise=True,
-                suppress_warnings=True,
-                error_action='ignore',
-                trace=False,
-                n_jobs=-1
-            )
-            
-            progress_bar.progress(100)
+            try:
+                # Cloud memory optimization
+                if len(dataframe) > 1500:
+                    st.warning(f"⚠️ Large dataset ({len(dataframe)} days). Using last 1500 for faster training.")
+                    df_train = dataframe[-1500:]
+                else:
+                    df_train = dataframe
+        
+                # Fast ARIMA for cloud
+                model = auto_arima(
+                    y=df_train['VWAP'],
+                    X=df_train[ind_features],
+                    start_p=1, max_p=2,
+                    start_q=1, max_q=2,
+                    max_d=1,
+                    seasonal=False,
+                    stepwise=True,
+                    suppress_warnings=True,
+                    trace=False,
+                    n_jobs=1,
+                    maxiter=50
+                )
+        
+                progress_bar.progress(100)
+        except MemoryError:
+                st.error("❌ Out of memory! Please upload a smaller dataset.")
+                st.stop()
+        except Exception as e:
+                st.error(f"❌ Training error: {str(e)}")
+                st.stop()
         
         st.success(f"✅ Model trained successfully! Best Model: ARIMA{model.order}")
       
@@ -618,3 +636,4 @@ st.markdown("""
 </div>
 
 """, unsafe_allow_html=True)
+
