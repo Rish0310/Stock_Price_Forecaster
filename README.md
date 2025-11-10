@@ -25,7 +25,7 @@ Upload your stock CSV file and get precise price predictions for the next 7-30 d
 | Feature | Description |
 |---------|-------------|
 | 🔮 **Future Forecasting** | Predict prices 1-30 days ahead with configurable horizons |
-| ⚡ **Fast Training** | Optimized ARIMA model trains in 2-3 minutes |
+| ⚡ **Effective Training** | Optimized ARIMA model trains in a few minutes |
 | 📊 **Interactive Charts** | Plotly visualizations with historical and predicted trends |
 | 🎯 **Accuracy Metrics** | Real-time MAE, RMSE, and MAPE calculations |
 | 📥 **Export Ready** | Download predictions as CSV for further analysis |
@@ -50,7 +50,7 @@ graph LR
     B --> C[Train ARIMA Model]
     C --> D[Generate Predictions]
     D --> E[Interactive Visualizations]
-    E --> F[Download Results]
+    E --> F[Get Results]
 ```
 
 ### Technical Approach
@@ -89,4 +89,5 @@ Your CSV should include these columns:
 ### Prerequisites
 - Python 3.11+
 - pip package manager
+
 
