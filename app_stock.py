@@ -8,10 +8,8 @@ from datetime import datetime, timedelta
 import warnings
 warnings.filterwarnings('ignore')
 
-# Page config
 st.set_page_config(page_title="Stock Price Predictor", page_icon="📈", layout="wide")
 
-# Custom CSS
 st.markdown("""
 <style>
     .main-header {
@@ -29,14 +27,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Title
 st.markdown('<h1 class="main-header">📈 Stock Price Predictor</h1>', unsafe_allow_html=True)
 st.markdown("**AI-Powered Future Stock Price Forecasting using ARIMA**")
 
-# Sidebar
 st.sidebar.header("⚙️ Configuration")
 
-# File upload
 uploaded_file = st.sidebar.file_uploader("📁 Upload Stock CSV", type=['csv'])
 
 if uploaded_file:
@@ -77,8 +72,7 @@ if uploaded_file:
         }), use_container_width=True)
         
         st.divider()
-        
-        # Metrics Row
+       
         col1, col2, col3, col4 = st.columns(4)
         
         current_price = df['Close'].iloc[-1]
@@ -104,13 +98,11 @@ if uploaded_file:
             st.metric("📊 Avg Volume", f"{avg_volume:,.0f}")
         
         st.divider()
-        
-        # Charts - Full Width
+       
         st.subheader("📈 Price History (Last 180 Days)")
         
         fig = go.Figure()
-        
-        # Plot closing price
+       
         fig.add_trace(go.Scatter(
             x=df.index[-180:], 
             y=df['Close'][-180:],
@@ -128,8 +120,7 @@ if uploaded_file:
         )
         
         st.plotly_chart(fig, use_container_width=True)
-        
-        # Candlestick chart
+       
         st.subheader("📊 Candlestick Chart (Last 50 Days)")
         
         fig2 = go.Figure(data=[go.Candlestick(
@@ -150,14 +141,12 @@ if uploaded_file:
     # ========== TAB 2: FUTURE PREDICTIONS ==========
     with tab2:
         st.header(f"🔮 Next {forecast_days} Days Price Predictions")
-        
-        # Prepare data with progress
+       
         with st.spinner("🔄 Preparing data and engineering features..."):
             # Drop Trades column and NaN
             dataframe = df.drop(columns=['Trades'], errors='ignore')
             dataframe = dataframe.dropna()
-            
-            # Feature engineering
+           
             lag_features = ['High', 'Low', 'Volume', 'Turnover']
             window1 = 3
             window2 = 7
@@ -167,25 +156,20 @@ if uploaded_file:
                 dataframe[f'{col}rolling_mean_7'] = dataframe[col].rolling(window=window2).mean()
                 dataframe[f'{col}rolling_std_3'] = dataframe[col].rolling(window=window1).std()
                 dataframe[f'{col}rolling_std_7'] = dataframe[col].rolling(window=window2).std()
-            
-            # Drop NaN created by rolling windows
+           
             dataframe = dataframe.dropna()
-            
-            # Feature list
+         
             ind_features = [col for col in dataframe.columns if 'rolling' in col]
             
             st.success(f"✅ Engineered {len(ind_features)} features from {len(dataframe)} days of data")
-        
-        # Train model
+      
         with st.spinner("🤖 Training optimized ARIMA model..."):
             progress_bar = st.progress(0)
-            
-            # Use FAST auto_arima for speed
+          
             model = auto_arima(
                 y=dataframe['VWAP'],
                 X=dataframe[ind_features],
-                
-                # Fast parameters
+               
                 start_p=1, max_p=3,
                 start_q=1, max_q=3,
                 max_d=2,
@@ -200,21 +184,17 @@ if uploaded_file:
             progress_bar.progress(100)
         
         st.success(f"✅ Model trained successfully! Best Model: ARIMA{model.order}")
-        
-        # Make future predictions
+      
         with st.spinner(f"🔮 Generating {forecast_days}-day forecast..."):
             # Prepare future features (use average of last 7 days)
             last_7_features = dataframe[ind_features].iloc[-7:].mean().values
             future_features = np.tile(last_7_features, (forecast_days, 1))
-            
-            # Predict future
+         
             future_forecast = model.predict(n_periods=forecast_days, X=future_features)
-            
-            # Generate future dates (convert to datetime for proper handling)
+         
             last_date = pd.to_datetime(dataframe.index[-1])
             future_dates = pd.date_range(start=last_date + timedelta(days=1), periods=forecast_days, freq='D')
-            
-            # Create forecast dataframe
+         
             future_df = pd.DataFrame({
                 'Date': future_dates,
                 'Predicted_VWAP': future_forecast
@@ -223,17 +203,14 @@ if uploaded_file:
             future_df.set_index('Date', inplace=True)
         
         st.success(f"✅ Generated {forecast_days}-day forecast!")
-        
-        # Display predictions
+     
         col1, col2 = st.columns([2, 1])
         
         with col1:
             st.subheader("📊 Historical + Future Price Chart")
-            
-            # Combined chart
+          
             fig = go.Figure()
-            
-            # Historical data (last 90 days)
+
             fig.add_trace(go.Scatter(
                 x=list(dataframe.index[-90:]),
                 y=dataframe['VWAP'][-90:].values,
@@ -241,8 +218,7 @@ if uploaded_file:
                 name='Historical VWAP',
                 line=dict(color='#1f77b4', width=2)
             ))
-            
-            # Add marker for "today"
+        
             fig.add_trace(go.Scatter(
                 x=[dataframe.index[-1]],
                 y=[dataframe['VWAP'].iloc[-1]],
@@ -250,8 +226,7 @@ if uploaded_file:
                 name='Today',
                 marker=dict(color='green', size=12, symbol='star')
             ))
-            
-            # Future predictions
+         
             fig.add_trace(go.Scatter(
                 x=list(future_df.index),
                 y=future_df['Predicted_VWAP'].values,
@@ -260,8 +235,7 @@ if uploaded_file:
                 line=dict(color='red', width=2, dash='dash'),
                 marker=dict(size=8, symbol='circle')
             ))
-            
-            # Add annotation instead of vline (which was causing the error)
+           
             fig.add_annotation(
                 x=dataframe.index[-1],
                 y=dataframe['VWAP'].iloc[-1],
@@ -284,8 +258,7 @@ if uploaded_file:
         
         with col2:
             st.subheader("📊 Prediction Summary")
-            
-            # Current vs predicted
+           
             current_price = dataframe['VWAP'].iloc[-1]
             predicted_price_7d = future_df['Predicted_VWAP'].iloc[min(6, len(future_df)-1)]
             predicted_price_final = future_df['Predicted_VWAP'].iloc[-1]
@@ -312,8 +285,7 @@ if uploaded_file:
                 )
             
             st.divider()
-            
-            # Trend indicator
+          
             if pct_change_7d > 2:
                 st.success("📈 **Bullish Trend**")
                 st.write("Price expected to rise significantly")
@@ -325,11 +297,9 @@ if uploaded_file:
                 st.write("Price relatively stable")
             
             st.divider()
-            
-            # Predictions table
+      
             st.subheader("📅 Daily Predictions")
-            
-            # Format predictions
+         
             display_df = future_df.copy()
             display_df['Day'] = [f"Day {i+1}" for i in range(len(display_df))]
             display_df = display_df[['Day', 'Predicted_VWAP']]
@@ -344,8 +314,7 @@ if uploaded_file:
                 }).background_gradient(subset=['% Change'], cmap='RdYlGn', vmin=-5, vmax=5),
                 height=300
             )
-            
-            # Download button
+       
             csv = future_df.to_csv()
             st.download_button(
                 "📥 Download Predictions CSV",
@@ -366,8 +335,7 @@ if uploaded_file:
             train_size = int(len(dataframe) * 0.8)
             training_data = dataframe[:train_size]
             testing_data = dataframe[train_size:].copy()
-            
-            # Train validation model with same parameters
+  
             val_model = auto_arima(
                 y=training_data['VWAP'],
                 X=training_data[ind_features],
@@ -380,18 +348,15 @@ if uploaded_file:
                 trace=False,
                 n_jobs=-1
             )
-            
-            # Predict on test set
+       
             val_forecast = val_model.predict(n_periods=len(testing_data), X=testing_data[ind_features])
             testing_data['Forecast_ARIMA'] = val_forecast.values
-        
-        # Calculate metrics
+   
         mae = mean_absolute_error(testing_data['VWAP'], testing_data['Forecast_ARIMA'])
         rmse = np.sqrt(mean_squared_error(testing_data['VWAP'], testing_data['Forecast_ARIMA']))
         mape = np.mean(np.abs((testing_data['VWAP'] - testing_data['Forecast_ARIMA']) / testing_data['VWAP'])) * 100
         accuracy = 100 - mape
-        
-        # Display metrics
+  
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -411,8 +376,7 @@ if uploaded_file:
             st.caption("Model Accuracy")
         
         st.divider()
-        
-        # Visualization - Full Width
+   
         st.subheader("📈 Predicted vs Actual Prices (Test Set)")
         
         fig = go.Figure()
@@ -441,8 +405,7 @@ if uploaded_file:
         )
         
         st.plotly_chart(fig, use_container_width=True)
-        
-        # Error Distribution
+     
         st.subheader("📊 Error Distribution")
         
         col1, col2 = st.columns(2)
@@ -647,11 +610,11 @@ else:
     - Shows prediction vs actual charts
     """)
 
-# Footer
 st.divider()
 st.markdown("""
 <div style='text-align: center; color: gray;'>
     <p><strong>Built with ❤️ using Streamlit, pmdarima & Plotly</strong></p>
     <p>🔮 AI-Powered Stock Price Forecasting | ⚡ Fast ARIMA Model | 📊 Real Future Predictions</p>
 </div>
+
 """, unsafe_allow_html=True)
