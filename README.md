@@ -4,7 +4,7 @@
 
 A machine learning application that leverages ARIMA modeling to forecast stock prices with 95%+ accuracy. Built for traders, analysts, and data science enthusiasts who want reliable predictions without complex coding.
 
-[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](YOUR_APP_URL_HERE)
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://stockpriceforecaster-g8hkntfypx8rtntkmzrdrc.streamlit.app/)
 
 ---
 
@@ -36,7 +36,7 @@ Upload your stock CSV file and get precise price predictions for the next 7-30 d
 
 ## 🚀 Live Demo
 
-Try it now: **[Stock Price Forecaster](YOUR_APP_URL_HERE)**
+Try it now: **[Stock Price Forecaster](https://stockpriceforecaster-g8hkntfypx8rtntkmzrdrc.streamlit.app/)**
 
 No installation required—just upload your data and start predicting!
 
@@ -89,5 +89,6 @@ Your CSV should include these columns:
 ### Prerequisites
 - Python 3.11+
 - pip package manager
+
 
 
