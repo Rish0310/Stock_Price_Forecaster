@@ -10,7 +10,7 @@ A machine learning application that leverages ARIMA modeling to forecast stock p
 
 ## 🎯 What It Does
 
-Upload your stock CSV file and get precise price predictions for the next 7-30 days. The app automatically engineers features, trains an optimized ARIMA model, and delivers interactive visualizations—all in under 3 minutes.
+Upload your stock CSV file and get precise price predictions for the next 7-30 days. The app automatically engineers features, trains an optimized ARIMA model, and delivers interactive visualizations.
 
 **Perfect for:**
 - 📊 Day traders analyzing short-term trends
@@ -83,12 +83,6 @@ Your CSV should include these columns:
 **Sample data:** [BAJAJFINSV.csv](BAJAJFINSV.csv)
 
 ---
-
-## 🛠️ Local Installation
-
-### Prerequisites
-- Python 3.11+
-- pip package manager
 
 
 
