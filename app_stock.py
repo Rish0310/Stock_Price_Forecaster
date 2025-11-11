@@ -432,10 +432,23 @@ if uploaded_file:
         
         with col2:
             st.markdown("### Error Statistics")
-            st.metric("Mean Error", f"₹{errors.mean():.2f}")
-            st.metric("Std Error", f"₹{errors.std():.2f}")
-            st.metric("Min Error", f"₹{errors.min():.2f}")
-            st.metric("Max Error", f"₹{errors.max():.2f}")
+    
+        abs_errors = np.abs(errors)
+    
+        st.metric("Mean Absolute Error", f"₹{mae:.2f}")
+        st.metric("Std Error", f"₹{errors.std():.2f}")
+        st.metric("Min Absolute Error", f"₹{abs_errors.min():.2f}")
+        st.metric("Max Absolute Error", f"₹{abs_errors.max():.2f}")
+    
+        st.divider()
+    
+        st.caption("**Bias Analysis:**")
+        if errors.mean() > 0:
+            st.info(f"📈 Model tends to **underestimate** by ₹{errors.mean():.2f} on average")
+        elif errors.mean() < 0:
+            st.warning(f"📉 Model tends to **overestimate** by ₹{abs(errors.mean()):.2f} on average")
+        else:
+            st.success("✅ Model is **unbiased** (no systematic over/under estimation)")
     
     # ========== TAB 4: INSIGHTS ==========
     with tab4:
@@ -618,3 +631,4 @@ st.markdown("""
 </div>
 
 """, unsafe_allow_html=True)
+
